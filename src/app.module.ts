@@ -1,10 +1,22 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { ConfigModule } from "@nestjs/config";
+import { OpenaiService } from "@services/index";
+import openaiConfig from "@config/index";
+import { HttpModule } from "@nestjs/axios";
+import { ChatModule } from "./modules/chat/chat.module";
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [openaiConfig],
+    }),
+    HttpModule,
+    ChatModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OpenaiService],
 })
 export class AppModule {}
