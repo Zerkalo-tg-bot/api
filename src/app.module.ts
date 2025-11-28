@@ -5,7 +5,8 @@ import { ConfigModule } from "@nestjs/config";
 import { OpenaiService } from "@services/index";
 import openaiConfig from "@config/index";
 import { HttpModule } from "@nestjs/axios";
-import { ChatModule } from "./modules/chat/chat.module";
+import { ChatModule } from "@resources/chat/chat.module";
+import { PrismaModule } from "./modules/prisma/prisma.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ChatModule } from "./modules/chat/chat.module";
     }),
     HttpModule,
     ChatModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService, OpenaiService],

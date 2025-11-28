@@ -19,7 +19,8 @@
       "@modules/*": ["src/modules/*"],
       "@shared/*": ["src/shared/*"],
       "@config/*": ["src/config/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@resources/*": ["src/resources/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

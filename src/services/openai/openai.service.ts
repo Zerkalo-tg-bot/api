@@ -4,6 +4,7 @@ import { HttpService } from "@nestjs/axios";
 import OpenAI from "openai";
 import { ConfigService } from "@nestjs/config";
 import { from, map } from "rxjs";
+import { IOpenAIMessage } from "./model";
 
 @Injectable()
 export class OpenaiService extends BaseApiService {
@@ -21,12 +22,14 @@ export class OpenaiService extends BaseApiService {
     this.#model = this.configService.get<string>("openai.model") || "gpt-4";
   }
 
-  async sendMessage(message: string) {
-    return from(
-      this.#openai.chat.completions.create({
+  async sendMessage(messages: IOpenAIMessage[]) {
+    return this.#openai.chat.completions
+      .create({
         model: this.#model,
-        messages: [{ role: "user", content: message }],
-      }),
-    ).pipe(map((response) => response.choices[0].message?.content || ""));
+        messages,
+      })
+      .then((response) => {
+        return response.choices[0].message?.content;
+      });
   }
 }

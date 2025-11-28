@@ -7,7 +7,8 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post()
-  create(@Body() message: MessageDto) {
-    return this.chatService.create(message);
+  sendMessage(@Body() message: MessageDto) {
+    console.log("API - got message", message);
+    return this.chatService.sendMessage(message);
   }
 }
