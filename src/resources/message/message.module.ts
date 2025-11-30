@@ -1,14 +1,14 @@
 import { Module } from "@nestjs/common";
 import { MessageService } from "./message.service";
 import { MessageController } from "./message.controller";
-import { OpenaiService, PromptService, GoogleDocsService } from "@/services";
 import { PrismaModule } from "@/modules/prisma/prisma.module";
 import { HttpModule } from "@nestjs/axios";
-import { ConfigModule } from "@nestjs/config";
+import { OpenaiModule } from "@/modules/openai/openai.module";
+import { PromptModule } from "@/modules/prompt/prompt.module";
 
 @Module({
-  imports: [PrismaModule, HttpModule, ConfigModule],
+  imports: [PrismaModule, HttpModule, OpenaiModule, PromptModule],
   controllers: [MessageController],
-  providers: [MessageService, OpenaiService, PromptService, GoogleDocsService],
+  providers: [MessageService],
 })
 export class MessageModule {}

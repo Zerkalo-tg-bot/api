@@ -1,10 +1,11 @@
-import { IOpenAIMessage } from "@/services/openai/model";
 import { Injectable } from "@nestjs/common";
 import { MessageDto } from "./dto/message.dto";
 import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
 import { PrismaService } from "@/modules/prisma/prisma.service";
-import { OpenaiService, PromptService } from "@/services";
+import { IOpenAIMessage } from "@/modules/openai/model";
+import { OpenaiService } from "@/modules/openai/openai.service";
+import { PromptService } from "@/modules/prompt/prompt.service";
 
 @Injectable()
 export class MessageService {

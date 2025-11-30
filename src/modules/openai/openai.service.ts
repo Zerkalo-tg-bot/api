@@ -3,7 +3,6 @@ import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import OpenAI from "openai";
 import { ConfigService } from "@nestjs/config";
-import { from, map } from "rxjs";
 import { IOpenAIMessage } from "./model";
 
 @Injectable()
