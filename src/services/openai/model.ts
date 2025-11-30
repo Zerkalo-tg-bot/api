@@ -1,4 +1,6 @@
 export interface IOpenAIMessage {
-  role: "user" | "assistant" | "system";
+  role: IOpenAIMessageRole;
   content: string;
 }
+
+export type IOpenAIMessageRole = "user" | "assistant" | "system";
