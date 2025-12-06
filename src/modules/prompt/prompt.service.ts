@@ -12,7 +12,7 @@ export class PromptService {
     this.#botPromptDocumentId = this.configService.get<string>("prompts.botPromptDocumentId")!;
   }
 
-  getBotPrompt() {
+  getBotBehaviorPrompt() {
     return this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
   }
 }

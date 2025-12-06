@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { MessageDto } from "./dto/message.dto";
 import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
@@ -16,43 +16,58 @@ export class MessageService {
   ) {}
 
   async sendMessage(message: MessageDto) {
-    try {
-      const history = (await this.prisma.message.findMany({
-        where: { telegramUserId: message.telegramUserId },
-      })) as IMessage[];
+    const history = (await this.prisma.message.findMany({
+      where: { telegramUserId: message.telegramUserId },
+    })) as IMessage[];
 
-      const prompt = await this.promptService.getBotPrompt();
+    const prompt = await this.promptService.getBotBehaviorPrompt();
 
-      const openAIMessages: IOpenAIMessage[] = [
-        {
-          role: "system",
-          content: prompt,
+    const openAIMessages: IOpenAIMessage[] = [
+      {
+        role: "system",
+        content: prompt,
+      },
+      ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
+    ];
+    openAIMessages.push({ role: "user", content: message.content });
+    const response = await this.openai.sendMessage(openAIMessages);
+    if (response) {
+      await this.prisma.message.create({
+        data: {
+          telegramUserId: message.telegramUserId,
+          role: "user",
+          content: message.content,
         },
-        ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
-      ];
-      openAIMessages.push({ role: "user", content: message.content });
-      const response = await this.openai.sendMessage(openAIMessages);
-      if (response) {
-        await this.prisma.message.create({
-          data: {
-            telegramUserId: message.telegramUserId,
-            role: "user",
-            content: message.content,
-          },
-        });
+      });
 
-        await this.prisma.message.create({
-          data: {
-            telegramUserId: message.telegramUserId,
-            role: "assistant",
-            content: response,
-          },
-        });
+      await this.prisma.message.create({
+        data: {
+          telegramUserId: message.telegramUserId,
+          role: "assistant",
+          content: response,
+        },
+      });
 
-        return response;
-      }
-    } catch (error) {
-      console.error("Error in MessageService.sendMessage:", error);
+      return response;
     }
+  }
+
+  async getGreeting(telegramUserId: number) {
+    const prompt = await this.promptService.getBotBehaviorPrompt();
+    const response = await this.openai.sendMessage([
+      {
+        role: "system",
+        content: prompt,
+      },
+    ]);
+    if (!response) return new InternalServerErrorException("Failed to get greeting from OpenAI");
+    await this.prisma.message.create({
+      data: {
+        telegramUserId,
+        role: "assistant",
+        content: response || "Привет!",
+      },
+    });
+    return response;
   }
 }

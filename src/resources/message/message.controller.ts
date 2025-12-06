@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from "@nestjs/common";
+import { Controller, Post, Body, Param } from "@nestjs/common";
 import { MessageService } from "./message.service";
 import { MessageDto } from "./dto/message.dto";
 
@@ -9,5 +9,10 @@ export class MessageController {
   @Post()
   async sendMessage(@Body() message: MessageDto) {
     return this.messageService.sendMessage(message);
+  }
+
+  @Post("greet/:telegramUserId")
+  async getGreeting(@Param("telegramUserId") telegramUserId: string) {
+    return this.messageService.getGreeting(+telegramUserId);
   }
 }
