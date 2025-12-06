@@ -1,8 +1,13 @@
+import { PrismaService } from "@/modules/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ChatService {
-  async createChatSession(telegramUserId: string) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async deleteChatSession(telegramUserId: string) {}
+  async resetChatState(telegramUserId: number) {
+    return this.prisma.message.deleteMany({
+      where: { telegramUserId },
+    });
+  }
 }
