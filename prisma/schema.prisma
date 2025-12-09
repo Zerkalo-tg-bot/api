@@ -25,3 +25,31 @@ model Message {
   @@index([telegramUserId])
   @@map("messages")
 }
+
+model Fact {
+  id        Int      @id @default(autoincrement()) 
+  telegramUserId    Int      @map("telegram_user_id")
+  content      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([telegramUserId])
+  @@map("facts")
+}
+
+model Insight {
+  id        Int      @id @default(autoincrement()) 
+  telegramUserId    Int      @map("telegram_user_id")
+  content      String
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([telegramUserId])
+  @@map("insights")
+}
+
+model Event {
+  id        Int      @id @default(autoincrement()) 
+  telegramUserId    Int      @map("telegram_user_id")
+  content      String
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([telegramUserId])
+  @@map("events")
+}
