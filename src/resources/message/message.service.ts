@@ -15,9 +15,9 @@ export class MessageService {
     private readonly promptService: PromptService,
   ) {}
 
-  async sendMessage(message: MessageDto) {
+  async sendMessage(telegramUserId: number, message: MessageDto) {
     const history = (await this.prisma.message.findMany({
-      where: { telegramUserId: message.telegramUserId },
+      where: { telegramUserId },
     })) as IMessage[];
 
     const prompt = await this.promptService.getBotBehaviorPrompt();
@@ -34,7 +34,7 @@ export class MessageService {
     if (response) {
       await this.prisma.message.create({
         data: {
-          telegramUserId: message.telegramUserId,
+          telegramUserId: telegramUserId,
           role: "user",
           content: message.content,
         },
@@ -42,7 +42,7 @@ export class MessageService {
 
       await this.prisma.message.create({
         data: {
-          telegramUserId: message.telegramUserId,
+          telegramUserId: telegramUserId,
           role: "assistant",
           content: response,
         },

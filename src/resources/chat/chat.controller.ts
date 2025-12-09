@@ -1,11 +1,11 @@
-import { Controller, Post, Body, Delete, Param } from "@nestjs/common";
+import { Controller, Delete, Param } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 
-@Controller("chat")
+@Controller(":telegramUserId/chat")
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Delete(":telegramUserId")
+  @Delete()
   async resetChatState(@Param("telegramUserId") telegramUserId: string) {
     return this.chatService.resetChatState(+telegramUserId);
   }
