@@ -26,6 +26,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.3",
     "@prisma/client": "6.15.0",
     "axios": "^1.13.2",
     "googleapis": "^166.0.0",
