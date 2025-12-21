@@ -3,9 +3,9 @@ import { MessageDto } from "./dto/message.dto";
 import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
 import { PrismaService } from "@/modules/prisma/prisma.service";
-import { IOpenAIMessage } from "@/modules/openai/model";
 import { OpenaiService } from "@/modules/openai/openai.service";
 import { PromptService } from "@/modules/prompt/prompt.service";
+import { IOpenAIMessage } from "@/modules/openai";
 
 @Injectable()
 export class MessageService {
@@ -16,12 +16,13 @@ export class MessageService {
   ) {}
 
   async sendMessage(telegramUserId: number, message: MessageDto) {
+
     const history = (await this.prisma.message.findMany({
       where: { telegramUserId },
     })) as IMessage[];
 
     const prompt = await this.promptService.getBotBehaviorPrompt();
-
+  
     const openAIMessages: IOpenAIMessage[] = [
       {
         role: "system",
@@ -30,7 +31,9 @@ export class MessageService {
       ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
     ];
     openAIMessages.push({ role: "user", content: message.content });
+   
     const response = await this.openai.sendMessage(openAIMessages);
+
     if (response) {
       await this.prisma.message.create({
         data: {

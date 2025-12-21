@@ -1,6 +1,6 @@
+import { IOpenAIMessageRole } from "./openai-message-role.interface";
+
 export interface IOpenAIMessage {
   role: IOpenAIMessageRole;
   content: string;
 }
-
-export type IOpenAIMessageRole = "user" | "assistant" | "system";

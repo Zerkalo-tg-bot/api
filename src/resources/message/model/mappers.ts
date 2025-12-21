@@ -1,4 +1,4 @@
-import { IOpenAIMessage } from "@/modules/openai/model";
+import { IOpenAIMessage } from "@/modules/openai";
 import { IMessage } from "../entities/message";
 
 export function mapMessageToOpenAIMessage(message: IMessage): IOpenAIMessage {

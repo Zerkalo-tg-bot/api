@@ -1,4 +1,4 @@
-import { IOpenAIMessageRole } from "@/modules/openai/model";
+import { IOpenAIMessageRole } from "@/modules/openai";
 import { Message } from "@prisma/client";
 
 export interface IMessage extends Message {

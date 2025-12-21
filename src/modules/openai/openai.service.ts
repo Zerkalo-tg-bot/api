@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import OpenAI from "openai";
 import { ConfigService } from "@nestjs/config";
-import { IOpenAIMessage } from "./model";
+import { IOpenAIMessage } from "./model/interfaces";
 
 @Injectable()
 export class OpenaiService extends BaseApiService {
@@ -26,6 +26,7 @@ export class OpenaiService extends BaseApiService {
       .create({
         model: this.#model,
         messages,
+        tools: [],
       })
       .then((response) => {
         return response.choices[0].message?.content;
