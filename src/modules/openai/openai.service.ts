@@ -27,15 +27,20 @@ export class OpenaiService extends BaseApiService {
    * @param messages An array of messages to send to the OpenAI chat completion endpoint
    * @returns The content of the assistant's reply
    */
-  sendMessage(messages: IOpenAIMessage[]) {
-    return this.#openai.chat.completions
-      .create({
-        model: this.#model,
-        messages,
-        tools: [],
-      })
-      .then((response) => {
-        return response.choices[0].message?.content;
-      });
+  async sendMessage(messages: IOpenAIMessage[]) {
+    if (!messages || messages.length === 0) {
+      throw new Error("Messages array cannot be empty");
+    }
+    const response = await this.#openai.chat.completions.create({
+      model: this.#model,
+      messages,
+      tools: [],
+    });
+
+    const content = response.choices[0].message?.content;
+    if (!content) {
+      throw new Error("No content in OpenAI response");
+    }
+    return content;
   }
 }

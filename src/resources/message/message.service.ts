@@ -40,25 +40,23 @@ export class MessageService {
 
     const response = await this.openai.sendMessage(openAIMessages);
 
-    if (response) {
-      await this.prisma.message.create({
-        data: {
-          telegramUserId: telegramUserId,
-          role: "user",
-          content: message.content,
-        },
-      });
+    await this.prisma.message.create({
+      data: {
+        telegramUserId: telegramUserId,
+        role: "user",
+        content: message.content,
+      },
+    });
 
-      await this.prisma.message.create({
-        data: {
-          telegramUserId: telegramUserId,
-          role: "assistant",
-          content: response,
-        },
-      });
+    await this.prisma.message.create({
+      data: {
+        telegramUserId: telegramUserId,
+        role: "assistant",
+        content: response,
+      },
+    });
 
-      return response;
-    }
+    return response;
   }
 
   /**
@@ -75,12 +73,11 @@ export class MessageService {
         content: prompt,
       },
     ]);
-    if (!response) return new InternalServerErrorException("Failed to get greeting from OpenAI");
     await this.prisma.message.create({
       data: {
         telegramUserId,
         role: "assistant",
-        content: response || "Привет!",
+        content: response,
       },
     });
     return response;

@@ -17,7 +17,11 @@ export class PromptService {
    *
    * @returns A promise that resolves to the bot behavior prompt as a string
    */
-  getBotBehaviorPrompt() {
-    return this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
+  async getBotBehaviorPrompt() {
+    const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
+    if (!prompt) {
+      throw new Error("Failed to fetch bot behavior prompt");
+    }
+    return prompt;
   }
 }

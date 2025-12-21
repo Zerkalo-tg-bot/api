@@ -14,7 +14,11 @@ export class GoogleDocsService extends BaseApiService {
    * @param documentId The ID of the Google Docs document
    * @returns A promise that resolves to the plain text content of the document
    */
-  getPublicDocumentContent(documentId: string): Promise<string> {
-    return this.get<string>(`${documentId}/export?format=txt`);
+  async getPublicDocumentContent(documentId: string) {
+    const document = await this.get<string>(`${documentId}/export?format=txt`);
+    if (!document) {
+      throw new Error("Failed to fetch document content");
+    }
+    return document;
   }
 }
