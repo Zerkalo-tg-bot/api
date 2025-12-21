@@ -21,7 +21,13 @@ export class OpenaiService extends BaseApiService {
     this.#model = this.configService.get<string>("openai.model") || "gpt-4";
   }
 
-  async sendMessage(messages: IOpenAIMessage[]) {
+  /**
+   * Sends a chat completion request to the OpenAI API with the given messages.
+   *
+   * @param messages An array of messages to send to the OpenAI chat completion endpoint
+   * @returns The content of the assistant's reply
+   */
+  sendMessage(messages: IOpenAIMessage[]) {
     return this.#openai.chat.completions
       .create({
         model: this.#model,

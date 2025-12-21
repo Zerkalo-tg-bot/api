@@ -12,6 +12,11 @@ export class PromptService {
     this.#botPromptDocumentId = this.configService.get<string>("prompts.botPromptDocumentId")!;
   }
 
+  /**
+   * Retrieves the bot behavior prompt from the configured Google Docs document.
+   *
+   * @returns A promise that resolves to the bot behavior prompt as a string
+   */
   getBotBehaviorPrompt() {
     return this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
   }

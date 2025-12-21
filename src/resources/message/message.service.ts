@@ -15,14 +15,20 @@ export class MessageService {
     private readonly promptService: PromptService,
   ) {}
 
+  /**
+   * Sends a message from the user and processes the assistant's response.
+   *
+   * @param telegramUserId The Telegram user ID
+   * @param message The message DTO containing the user's message
+   * @returns The assistant's response
+   */
   async sendMessage(telegramUserId: number, message: MessageDto) {
-
     const history = (await this.prisma.message.findMany({
       where: { telegramUserId },
     })) as IMessage[];
 
     const prompt = await this.promptService.getBotBehaviorPrompt();
-  
+
     const openAIMessages: IOpenAIMessage[] = [
       {
         role: "system",
@@ -31,7 +37,7 @@ export class MessageService {
       ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
     ];
     openAIMessages.push({ role: "user", content: message.content });
-   
+
     const response = await this.openai.sendMessage(openAIMessages);
 
     if (response) {
@@ -55,6 +61,12 @@ export class MessageService {
     }
   }
 
+  /**
+   * Generates a greeting message for the user using OpenAI.
+   *
+   * @param  telegramUserId The Telegram user ID
+   * @returns The greeting message
+   */
   async getGreeting(telegramUserId: number) {
     const prompt = await this.promptService.getBotBehaviorPrompt();
     const response = await this.openai.sendMessage([
