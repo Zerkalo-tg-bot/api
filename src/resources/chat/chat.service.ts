@@ -11,8 +11,13 @@ export class ChatService {
    * @returns A promise that resolves when the chat state is reset
    */
   async resetChatState(telegramUserId: number) {
-    return this.prisma.message.deleteMany({
-      where: { telegramUserId },
-    });
+    return Promise.all([
+      this.prisma.message.deleteMany({
+        where: { telegramUserId },
+      }),
+      this.prisma.fact.deleteMany({
+        where: { telegramUserId },
+      }),
+    ]);
   }
 }

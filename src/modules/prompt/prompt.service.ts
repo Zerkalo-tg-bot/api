@@ -5,11 +5,13 @@ import { ConfigService } from "@nestjs/config";
 @Injectable()
 export class PromptService {
   #botPromptDocumentId: string;
+  #botMessageToolsDocumentId: string;
   constructor(
     private readonly googleDocsService: GoogleDocsService,
     private readonly configService: ConfigService,
   ) {
     this.#botPromptDocumentId = this.configService.get<string>("prompts.botPromptDocumentId")!;
+    this.#botMessageToolsDocumentId = this.configService.get<string>("prompts.botMessageToolsDocumentId")!;
   }
 
   /**
@@ -21,6 +23,19 @@ export class PromptService {
     const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
     if (!prompt) {
       throw new Error("Failed to fetch bot behavior prompt");
+    }
+    return prompt;
+  }
+
+  /**
+   * Retrieves the bot message tools prompt from the configured Google Docs document.
+   *
+   * @returns A promise that resolves to the bot message tools prompt as a string
+   */
+  async getBotMessageToolsPrompt() {
+    const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botMessageToolsDocumentId);
+    if (!prompt) {
+      throw new Error("Failed to fetch bot message tools prompt");
     }
     return prompt;
   }

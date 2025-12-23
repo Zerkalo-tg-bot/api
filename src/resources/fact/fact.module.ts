@@ -7,5 +7,6 @@ import { PrismaModule } from "@/modules/prisma/prisma.module";
   imports: [PrismaModule],
   controllers: [FactController],
   providers: [FactService],
+  exports: [FactService],
 })
 export class FactModule {}
