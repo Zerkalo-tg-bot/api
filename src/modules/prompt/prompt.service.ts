@@ -20,11 +20,12 @@ export class PromptService {
    * @returns A promise that resolves to the bot behavior prompt as a string
    */
   async getBotBehaviorPrompt() {
-    const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
-    if (!prompt) {
-      throw new Error("Failed to fetch bot behavior prompt");
+    try {
+      const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
+      return prompt;
+    } catch (error) {
+      throw new Error(`Failed to fetch bot behavior prompt:\n${error.message}`);
     }
-    return prompt;
   }
 
   /**
@@ -33,10 +34,11 @@ export class PromptService {
    * @returns A promise that resolves to the bot message tools prompt as a string
    */
   async getBotMessageToolsPrompt() {
-    const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botMessageToolsDocumentId);
-    if (!prompt) {
-      throw new Error("Failed to fetch bot message tools prompt");
+    try {
+      const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botMessageToolsDocumentId);
+      return prompt;
+    } catch (error) {
+      throw new Error(`Failed to fetch bot message tools prompt:\n${error.message}`);
     }
-    return prompt;
   }
 }

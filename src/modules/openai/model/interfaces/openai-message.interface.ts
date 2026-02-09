@@ -1,6 +1,6 @@
-import { IOpenAIMessageRole } from "./openai-message-role.interface";
+import { EOpenAIMessageRole } from "./openai-message-role.enum";
 
 export interface IOpenAIMessage {
-  role: IOpenAIMessageRole;
+  role: EOpenAIMessageRole;
   content: string;
 }

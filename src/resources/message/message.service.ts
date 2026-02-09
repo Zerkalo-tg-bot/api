@@ -1,5 +1,4 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { MessageDto } from "./dto/message.dto";
 import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
 import { PrismaService } from "@/modules/prisma/prisma.service";
@@ -8,6 +7,8 @@ import { PromptService } from "@/modules/prompt/prompt.service";
 import { IOpenAIMessage } from "@/modules/openai";
 import { FactService } from "@/resources/fact/fact.service";
 import { MESSAGE_OPENAI_TOOLS } from "./model/openaiTools";
+import { EOpenAIMessageRole } from "@/modules/openai/model/interfaces";
+import { MessageResponseDto, SendMessageDto } from "./dto";
 
 @Injectable()
 export class MessageService {
@@ -25,27 +26,39 @@ export class MessageService {
    * @param message The message DTO containing the user's message
    * @returns The assistant's response
    */
-  async sendMessage(telegramUserId: number, message: MessageDto) {
-    const history = (await this.prisma.message.findMany({
-      where: { telegramUserId },
-    })) as IMessage[];
+  async sendMessage(telegramUserId: number, message: SendMessageDto): Promise<MessageResponseDto> {
+    let history: IMessage[] = [];
+    try {
+      history = (await this.prisma.message.findMany({
+        where: { telegramUserId },
+      })) as IMessage[];
+    } catch (error) {
+      console.error(`Failed to fetch message history for user ${telegramUserId}:`, error);
+      throw new InternalServerErrorException(`Failed to fetch message history`);
+    }
 
-    const [botBehaviorPrompt, botMessageToolsPrompt] = await Promise.all([
-      this.promptService.getBotBehaviorPrompt(),
-      this.promptService.getBotMessageToolsPrompt(),
-    ]);
+    let botBehaviorPrompt: string;
+    let botMessageToolsPrompt: string;
+    try {
+      [botBehaviorPrompt, botMessageToolsPrompt] = await Promise.all([
+        this.promptService.getBotBehaviorPrompt(),
+        this.promptService.getBotMessageToolsPrompt(),
+      ]);
+    } catch (error) {
+      console.error("Failed to fetch bot prompts", error);
+      throw new InternalServerErrorException("Failed to fetch bot prompts");
+    }
 
     const systemPrompt = `${botBehaviorPrompt}\n\n${botMessageToolsPrompt}`;
 
     const openAIMessages: IOpenAIMessage[] = [
       {
-        role: "system",
+        role: EOpenAIMessageRole.SYSTEM,
         content: systemPrompt,
       },
-
       ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
     ];
-    openAIMessages.push({ role: "user", content: message.content });
+    openAIMessages.push({ role: EOpenAIMessageRole.USER, content: message.content });
 
     const response = await this.openai.sendMessageWithTools(
       openAIMessages,
@@ -55,23 +68,73 @@ export class MessageService {
       },
     );
 
-    await this.prisma.message.create({
-      data: {
-        telegramUserId: telegramUserId,
-        role: "user",
-        content: message.content,
-      },
-    });
+    try {
+      await this.prisma.message.create({
+        data: {
+          telegramUserId: telegramUserId,
+          role: "user",
+          content: message.content,
+        },
+      });
 
-    await this.prisma.message.create({
-      data: {
-        telegramUserId: telegramUserId,
-        role: "assistant",
-        content: response,
-      },
-    });
+      await this.prisma.message.create({
+        data: {
+          telegramUserId: telegramUserId,
+          role: "assistant",
+          content: response,
+        },
+      });
+    } catch (error) {
+      console.error(`Failed to save messages for user ${telegramUserId}:`, error);
+      throw new InternalServerErrorException(`Failed to save messages`);
+    }
 
-    return response;
+    return { content: response };
+  }
+
+  /**
+   * Generates a greeting message for the user using OpenAI.
+   *
+   * @param  telegramUserId The Telegram user ID
+   * @returns The greeting message
+   */
+  async getGreeting(telegramUserId: number): Promise<MessageResponseDto> {
+    let prompt: string;
+    try {
+      prompt = await this.promptService.getBotBehaviorPrompt();
+    } catch (error) {
+      console.error("Failed to fetch bot behavior prompt", error);
+      throw new InternalServerErrorException("Failed to fetch bot behavior prompt");
+    }
+
+    let response: string;
+
+    try {
+      response = await this.openai.sendMessage([
+        {
+          role: EOpenAIMessageRole.SYSTEM,
+          content: prompt,
+        },
+      ]);
+    } catch (error) {
+      console.error("Failed to generate greeting message", error);
+      throw new InternalServerErrorException("Failed to generate greeting message");
+    }
+
+    try {
+      await this.prisma.message.create({
+        data: {
+          telegramUserId,
+          role: EOpenAIMessageRole.ASSISTANT,
+          content: response,
+        },
+      });
+    } catch (error) {
+      console.error(`Failed to save greeting message for user ${telegramUserId}:`, error);
+      throw new InternalServerErrorException(`Failed to save greeting message`);
+    }
+
+    return { content: response };
   }
 
   /**
@@ -116,29 +179,5 @@ export class MessageService {
       default:
         throw new Error(`Unknown function: ${functionName}`);
     }
-  }
-
-  /**
-   * Generates a greeting message for the user using OpenAI.
-   *
-   * @param  telegramUserId The Telegram user ID
-   * @returns The greeting message
-   */
-  async getGreeting(telegramUserId: number) {
-    const prompt = await this.promptService.getBotBehaviorPrompt();
-    const response = await this.openai.sendMessage([
-      {
-        role: "system",
-        content: prompt,
-      },
-    ]);
-    await this.prisma.message.create({
-      data: {
-        telegramUserId,
-        role: "assistant",
-        content: response,
-      },
-    });
-    return response;
   }
 }

@@ -32,10 +32,17 @@ export class OpenaiService extends BaseApiService {
     if (!messages || messages.length === 0) {
       throw new Error("Messages array cannot be empty");
     }
-    const response = await this.#openai.chat.completions.create({
-      model: this.#model,
-      messages,
-    });
+
+    let response: OpenAI.Chat.Completions.ChatCompletion;
+    try {
+      response = await this.#openai.chat.completions.create({
+        model: this.#model,
+        messages,
+      });
+    } catch (error) {
+      console.error("Error calling OpenAI API:", error);
+      throw new Error(`Failed to call OpenAI API:\n${error.message}`);
+    }
 
     const content = response.choices[0].message?.content;
     if (!content) {

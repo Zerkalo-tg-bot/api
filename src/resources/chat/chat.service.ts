@@ -1,5 +1,5 @@
 import { PrismaService } from "@/modules/prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 
 @Injectable()
 export class ChatService {
@@ -11,13 +11,18 @@ export class ChatService {
    * @returns A promise that resolves when the chat state is reset
    */
   async resetChatState(telegramUserId: number) {
-    return Promise.all([
-      this.prisma.message.deleteMany({
-        where: { telegramUserId },
-      }),
-      this.prisma.fact.deleteMany({
-        where: { telegramUserId },
-      }),
-    ]);
+    try {
+      return Promise.all([
+        this.prisma.message.deleteMany({
+          where: { telegramUserId },
+        }),
+        this.prisma.fact.deleteMany({
+          where: { telegramUserId },
+        }),
+      ]);
+    } catch (error) {
+      console.error(`Failed to reset chat state for user ${telegramUserId}:`, error);
+      throw new InternalServerErrorException(`Failed to reset chat state`);
+    }
   }
 }
