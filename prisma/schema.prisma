@@ -14,6 +14,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  telegramId Int      @id  @map("telegram_id")
+  acceptedDisclaimer Boolean @default(false) @map("accepted_disclaimer")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  messages Message[]
+  facts Fact[]
+  insights Insight[]
+  events Event[]
+
+  @@map("telegram_users")
+}
+
 model Message {
   id        Int      @id @default(autoincrement())
   telegramUserId    Int      @map("telegram_user_id")
@@ -21,6 +34,7 @@ model Message {
   role      String
   createdAt DateTime @default(now()) @map("created_at")
 
+  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
 
   @@index([telegramUserId])
   @@map("messages")
@@ -32,6 +46,8 @@ model Fact {
   content      String
   createdAt DateTime @default(now()) @map("created_at")
 
+  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
+
   @@index([telegramUserId])
   @@map("facts")
 }
@@ -41,6 +57,9 @@ model Insight {
   telegramUserId    Int      @map("telegram_user_id")
   content      String
   createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
+
   @@index([telegramUserId])
   @@map("insights")
 }
@@ -50,6 +69,9 @@ model Event {
   telegramUserId    Int      @map("telegram_user_id")
   content      String
   createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
+
   @@index([telegramUserId])
   @@map("events")
 }
