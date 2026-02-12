@@ -28,6 +28,7 @@ export class MessageService {
     try {
       history = (await this.prisma.message.findMany({
         where: { telegramUserId },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       })) as IMessage[];
     } catch (error) {
       console.error(`Failed to fetch message history for user ${telegramUserId}:`, error);
@@ -54,27 +55,30 @@ export class MessageService {
     const response = await this.openai.sendMessage(openAIMessages);
 
     try {
-      await this.prisma.message.create({
-        data: {
-          telegramUserId: telegramUserId,
-          role: "user",
-          content: message.content,
-        },
-      });
-
-      await this.prisma.message.create({
-        data: {
-          telegramUserId: telegramUserId,
-          role: "assistant",
-          content: response,
-        },
-      });
+      await this.prisma.$transaction([
+        this.prisma.message.create({
+          data: {
+            telegramUserId: telegramUserId,
+            role: "user",
+            content: message.content,
+          },
+        }),
+        this.prisma.message.create({
+          data: {
+            telegramUserId: telegramUserId,
+            role: "assistant",
+            content: response,
+          },
+        }),
+      ]);
     } catch (error) {
       console.error(`Failed to save messages for user ${telegramUserId}:`, error);
       throw new InternalServerErrorException(`Failed to save messages`);
     }
 
-    return { content: response };
+    const responseMessage: MessageResponseDto = { content: response };
+
+    return responseMessage;
   }
 
   /**
