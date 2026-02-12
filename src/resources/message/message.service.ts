@@ -5,8 +5,6 @@ import { PrismaService } from "@/modules/prisma/prisma.service";
 import { OpenaiService } from "@/modules/openai/openai.service";
 import { PromptService } from "@/modules/prompt/prompt.service";
 import { IOpenAIMessage } from "@/modules/openai";
-import { FactService } from "@/resources/fact/fact.service";
-import { MESSAGE_OPENAI_TOOLS } from "./model/openaiTools";
 import { EOpenAIMessageRole } from "@/modules/openai/model/interfaces";
 import { MessageResponseDto, SendMessageDto } from "./dto";
 
@@ -16,7 +14,6 @@ export class MessageService {
     private readonly openai: OpenaiService,
     private readonly prisma: PrismaService,
     private readonly promptService: PromptService,
-    private readonly factService: FactService,
   ) {}
 
   /**
@@ -38,35 +35,23 @@ export class MessageService {
     }
 
     let botBehaviorPrompt: string;
-    let botMessageToolsPrompt: string;
     try {
-      [botBehaviorPrompt, botMessageToolsPrompt] = await Promise.all([
-        this.promptService.getBotBehaviorPrompt(),
-        this.promptService.getBotMessageToolsPrompt(),
-      ]);
+      botBehaviorPrompt = await this.promptService.getBotBehaviorPrompt();
     } catch (error) {
-      console.error("Failed to fetch bot prompts", error);
-      throw new InternalServerErrorException("Failed to fetch bot prompts");
+      console.error("Failed to fetch bot behavior prompt", error);
+      throw new InternalServerErrorException("Failed to fetch bot behavior prompt");
     }
-
-    const systemPrompt = `${botBehaviorPrompt}\n\n${botMessageToolsPrompt}`;
 
     const openAIMessages: IOpenAIMessage[] = [
       {
         role: EOpenAIMessageRole.SYSTEM,
-        content: systemPrompt,
+        content: botBehaviorPrompt,
       },
       ...history.map((msg) => mapMessageToOpenAIMessage(msg)),
     ];
     openAIMessages.push({ role: EOpenAIMessageRole.USER, content: message.content });
 
-    const response = await this.openai.sendMessageWithTools(
-      openAIMessages,
-      MESSAGE_OPENAI_TOOLS,
-      async (functionName: string, args: any) => {
-        return await this.executeToolCall(telegramUserId, functionName, args);
-      },
-    );
+    const response = await this.openai.sendMessage(openAIMessages);
 
     try {
       await this.prisma.message.create({
@@ -135,49 +120,5 @@ export class MessageService {
     }
 
     return { content: response };
-  }
-
-  /**
-   * Executes a tool call based on the function name.
-   *
-   * @param telegramUserId The Telegram user ID
-   * @param functionName The name of the function to execute
-   * @param args The arguments for the function
-   * @returns The result of the function execution
-   */
-  private async executeToolCall(telegramUserId: number, functionName: string, args: any): Promise<any> {
-    switch (functionName) {
-      case "get_user_facts": {
-        const facts = await this.factService.findAll(telegramUserId);
-        return {
-          facts: facts.map((fact) => ({
-            id: fact.id,
-            content: fact.content,
-            createdAt: fact.createdAt,
-          })),
-        };
-      }
-
-      case "set_user_fact": {
-        const fact = await this.factService.create(telegramUserId, {
-          content: args.content,
-        });
-        return {
-          success: true,
-          fact: {
-            id: fact.id,
-            content: fact.content,
-          },
-        };
-      }
-
-      case "delete_user_fact": {
-        const deletedFact = await this.factService.remove(telegramUserId, args.id);
-        return { success: !!deletedFact };
-      }
-
-      default:
-        throw new Error(`Unknown function: ${functionName}`);
-    }
   }
 }

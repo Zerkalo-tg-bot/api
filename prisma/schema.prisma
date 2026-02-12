@@ -20,9 +20,6 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
 
   messages Message[]
-  facts Fact[]
-  insights Insight[]
-  events Event[]
 
   @@map("telegram_users")
 }
@@ -38,40 +35,4 @@ model Message {
 
   @@index([telegramUserId])
   @@map("messages")
-}
-
-model Fact {
-  id        Int      @id @default(autoincrement()) 
-  telegramUserId    Int      @map("telegram_user_id")
-  content      String
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
-
-  @@index([telegramUserId])
-  @@map("facts")
-}
-
-model Insight {
-  id        Int      @id @default(autoincrement()) 
-  telegramUserId    Int      @map("telegram_user_id")
-  content      String
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
-
-  @@index([telegramUserId])
-  @@map("insights")
-}
-
-model Event {
-  id        Int      @id @default(autoincrement()) 
-  telegramUserId    Int      @map("telegram_user_id")
-  content      String
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)
-
-  @@index([telegramUserId])
-  @@map("events")
 }

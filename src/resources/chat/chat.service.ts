@@ -35,14 +35,9 @@ export class ChatService {
    */
   async resetChatState(telegramUserId: number) {
     try {
-      return Promise.all([
-        this.prisma.message.deleteMany({
-          where: { telegramUserId },
-        }),
-        this.prisma.fact.deleteMany({
-          where: { telegramUserId },
-        }),
-      ]);
+      await this.prisma.message.deleteMany({
+        where: { telegramUserId },
+      });
     } catch (error) {
       console.error(`Failed to reset chat state for user ${telegramUserId}:`, error);
       throw new InternalServerErrorException(`Failed to reset chat state`);

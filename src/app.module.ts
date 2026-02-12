@@ -5,11 +5,8 @@ import { ConfigModule } from "@nestjs/config";
 import { openaiConfig, promptsConfig } from "@config/index";
 import { ChatModule } from "@resources/chat/chat.module";
 import { MessageModule } from "./resources/message/message.module";
-import { FactModule } from "./resources/fact/fact.module";
-import { EventModule } from "./resources/event/event.module";
-import { InsightModule } from "./resources/insight/insight.module";
 import { BotConfigModule } from "./resources/bot-config/bot-config.module";
-import { UserModule } from './resources/user/user.module';
+import { UserModule } from "./resources/user/user.module";
 import botConfig from "./config/bot.config";
 
 @Module({
@@ -22,9 +19,6 @@ import botConfig from "./config/bot.config";
     MessageModule,
     BotConfigModule,
     UserModule,
-    // FactModule,
-    // InsightModule,
-    // EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],

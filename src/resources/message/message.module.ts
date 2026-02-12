@@ -5,10 +5,9 @@ import { PrismaModule } from "@/modules/prisma/prisma.module";
 import { HttpModule } from "@nestjs/axios";
 import { OpenaiModule } from "@/modules/openai/openai.module";
 import { PromptModule } from "@/modules/prompt/prompt.module";
-import { FactModule } from "@/resources/fact/fact.module";
 
 @Module({
-  imports: [PrismaModule, HttpModule, OpenaiModule, PromptModule, FactModule],
+  imports: [PrismaModule, HttpModule, OpenaiModule, PromptModule],
   controllers: [MessageController],
   providers: [MessageService],
 })
