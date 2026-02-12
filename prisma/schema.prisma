@@ -24,11 +24,17 @@ model User {
   @@map("telegram_users")
 }
 
+enum MessageRole {
+  SYSTEM    @map("system")
+  USER      @map("user")
+  ASSISTANT @map("assistant")
+}
+
 model Message {
   id        Int      @id @default(autoincrement())
   telegramUserId    Int      @map("telegram_user_id")
   content      String
-  role      String
+  role      MessageRole
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [telegramUserId], references: [telegramId], onDelete: Cascade)

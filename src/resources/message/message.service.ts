@@ -4,8 +4,8 @@ import { mapMessageToOpenAIMessage } from "./model/mappers";
 import { PrismaService } from "@/modules/prisma/prisma.service";
 import { OpenaiService } from "@/modules/openai/openai.service";
 import { PromptService } from "@/modules/prompt/prompt.service";
-import { IOpenAIMessage } from "@/modules/openai";
-import { EOpenAIMessageRole } from "@/modules/openai/model/interfaces";
+import { EOpenAIMessageRole, IOpenAIMessage } from "@/modules/openai";
+import { MessageRole } from "@prisma/client";
 import { MessageResponseDto, SendMessageDto } from "./dto";
 
 @Injectable()
@@ -26,10 +26,10 @@ export class MessageService {
   async sendMessage(telegramUserId: number, message: SendMessageDto): Promise<MessageResponseDto> {
     let history: IMessage[] = [];
     try {
-      history = (await this.prisma.message.findMany({
+      history = await this.prisma.message.findMany({
         where: { telegramUserId },
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      })) as IMessage[];
+      });
     } catch (error) {
       console.error(`Failed to fetch message history for user ${telegramUserId}:`, error);
       throw new InternalServerErrorException(`Failed to fetch message history`);
@@ -59,14 +59,14 @@ export class MessageService {
         this.prisma.message.create({
           data: {
             telegramUserId: telegramUserId,
-            role: "user",
+            role: MessageRole.USER,
             content: message.content,
           },
         }),
         this.prisma.message.create({
           data: {
             telegramUserId: telegramUserId,
-            role: "assistant",
+            role: MessageRole.ASSISTANT,
             content: response,
           },
         }),
@@ -77,7 +77,6 @@ export class MessageService {
     }
 
     const responseMessage: MessageResponseDto = { content: response };
-
     return responseMessage;
   }
 
@@ -114,7 +113,7 @@ export class MessageService {
       await this.prisma.message.create({
         data: {
           telegramUserId,
-          role: EOpenAIMessageRole.ASSISTANT,
+          role: MessageRole.ASSISTANT,
           content: response,
         },
       });

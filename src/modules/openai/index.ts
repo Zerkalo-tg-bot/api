@@ -1,3 +1,4 @@
-export type { IOpenAIMessage, EOpenAIMessageRole } from "./model/interfaces";
-export { OpenaiService } from "./openai.service";
-export { OpenaiModule } from "./openai.module";
+export * from "./model/interfaces";
+export * from "./model/enums";
+export * from "./openai.service";
+export * from "./openai.module";

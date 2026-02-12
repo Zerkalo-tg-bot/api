@@ -8,12 +8,14 @@ import { MessageModule } from "./resources/message/message.module";
 import { BotConfigModule } from "./resources/bot-config/bot-config.module";
 import { UserModule } from "./resources/user/user.module";
 import botConfig from "./config/bot.config";
+import { validateEnv } from "./config/env.validation";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [openaiConfig, promptsConfig, botConfig],
+      validate: validateEnv,
     }),
     ChatModule,
     MessageModule,
