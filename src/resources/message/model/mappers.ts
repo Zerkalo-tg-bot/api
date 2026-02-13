@@ -1,7 +1,5 @@
-import { IOpenAIMessage } from "@/modules/openai";
-import { EOpenAIMessageRole } from "@/modules/openai";
-import { MessageRole } from "@prisma/client";
-import { IMessage } from "../entities/message";
+import { EOpenAIMessageRole, IOpenAIMessage } from "@modules/openai";
+import { Message, MessageRole } from "@prisma/client";
 
 function mapMessageRoleToOpenAI(role: MessageRole): EOpenAIMessageRole {
   switch (role) {
@@ -14,7 +12,7 @@ function mapMessageRoleToOpenAI(role: MessageRole): EOpenAIMessageRole {
   }
 }
 
-export function mapMessageToOpenAIMessage(message: IMessage): IOpenAIMessage {
+export function mapMessageToOpenAIMessage(message: Message): IOpenAIMessage {
   return {
     role: mapMessageRoleToOpenAI(message.role),
     content: message.content,

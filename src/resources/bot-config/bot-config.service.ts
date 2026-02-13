@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { GoogleDocsService } from "../../modules/google-docs/google-docs.service";
+import { GoogleDocsService } from "@modules/google-docs";
 import { ConfigService } from "@nestjs/config";
 import { BotDisclaimerDto } from "./dto/bot-disclaimer.dto";
 

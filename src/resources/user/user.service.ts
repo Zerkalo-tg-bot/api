@@ -1,4 +1,4 @@
-import { PrismaService } from "@/modules/prisma/prisma.service";
+import { PrismaService } from "@modules/prisma";
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { UpdateDisclaimerDto } from "./dto/update-disclaimer.dto";
 import { User } from "@prisma/client";

@@ -16,7 +16,11 @@ export class BaseApiService {
    * @returns A promise that resolves to the response data of type T
    */
   get<T>(endpoint: string): Promise<T> {
-    return firstValueFrom(this.httpService.get<T>(`${this.baseUrl}/${endpoint}`).pipe(map((response) => response.data)));
+    return firstValueFrom(this.httpService.get<T>(`${this.baseUrl}/${endpoint}`).pipe(map((response) => response.data))).catch(
+      (error) => {
+        throw new Error(`Failed to GET from API endpoint ${endpoint}:\n${error.message}`);
+      },
+    );
   }
 
   /**
@@ -27,7 +31,11 @@ export class BaseApiService {
    * @returns A promise that resolves to the response data of type T
    */
   post<T>(endpoint: string, data: any): Promise<T> {
-    return firstValueFrom(this.httpService.post<T>(`${this.baseUrl}/${endpoint}`, data).pipe(map((response) => response.data)));
+    return firstValueFrom(
+      this.httpService.post<T>(`${this.baseUrl}/${endpoint}`, data).pipe(map((response) => response.data)),
+    ).catch((error) => {
+      throw new Error(`Failed to POST to API endpoint ${endpoint}:\n${error.message}`);
+    });
   }
 
   /**
@@ -38,7 +46,11 @@ export class BaseApiService {
    * @returns A promise that resolves to the response data of type T
    */
   patch<T>(endpoint: string, data: any): Promise<T> {
-    return firstValueFrom(this.httpService.patch<T>(`${this.baseUrl}/${endpoint}`, data).pipe(map((response) => response.data)));
+    return firstValueFrom(
+      this.httpService.patch<T>(`${this.baseUrl}/${endpoint}`, data).pipe(map((response) => response.data)),
+    ).catch((error) => {
+      throw new Error(`Failed to PATCH to API endpoint ${endpoint}:\n${error.message}`);
+    });
   }
 
   /**
@@ -48,6 +60,10 @@ export class BaseApiService {
    * @returns A promise that resolves to the response data of type T
    */
   delete<T>(endpoint: string): Promise<T> {
-    return firstValueFrom(this.httpService.delete<T>(`${this.baseUrl}/${endpoint}`).pipe(map((response) => response.data)));
+    return firstValueFrom(this.httpService.delete<T>(`${this.baseUrl}/${endpoint}`).pipe(map((response) => response.data))).catch(
+      (error) => {
+        throw new Error(`Failed to DELETE from API endpoint ${endpoint}:\n${error.message}`);
+      },
+    );
   }
 }

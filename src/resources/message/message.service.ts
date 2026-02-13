@@ -1,11 +1,9 @@
 import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
-import { PrismaService } from "@/modules/prisma/prisma.service";
-import { OpenaiService } from "@/modules/openai/openai.service";
-import { PromptService } from "@/modules/prompt/prompt.service";
-import { EOpenAIMessageRole, IOpenAIMessage } from "@/modules/openai";
-import { MessageRole } from "@prisma/client";
+import { PrismaService } from "@modules/prisma";
+import { EOpenAIMessageRole, OpenaiService, IOpenAIMessage } from "@modules/openai";
+import { PromptService } from "@modules/prompt";
+import { Message, MessageRole } from "@prisma/client";
 import { MessageResponseDto, SendMessageDto } from "./dto";
 
 @Injectable()
@@ -25,7 +23,7 @@ export class MessageService {
    * @returns The assistant's response
    */
   async sendMessage(telegramUserId: number, message: SendMessageDto): Promise<MessageResponseDto> {
-    let history: IMessage[] = [];
+    let history: Message[] = [];
     try {
       history = await this.prisma.message.findMany({
         where: { telegramUserId },

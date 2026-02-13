@@ -1,4 +1,4 @@
-import { BaseApiService } from "@/shared/services";
+import { BaseApiService } from "@shared/services";
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 

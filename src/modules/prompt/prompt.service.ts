@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { GoogleDocsService } from "../google-docs/google-docs.service";
+import { GoogleDocsService } from "@modules/google-docs";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()

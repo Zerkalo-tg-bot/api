@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { GoogleDocsModule } from "../google-docs/google-docs.module";
+import { GoogleDocsModule } from "@modules/google-docs";
 import { PromptService } from "./prompt.service";
 
 @Module({

@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { BotConfigService } from "./bot-config.service";
-import { GoogleDocsModule } from "../../modules/google-docs/google-docs.module";
+import { GoogleDocsModule } from "@modules/google-docs";
 import { BotConfigController } from "./bot-config.controller";
 
 @Module({

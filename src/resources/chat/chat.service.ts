@@ -1,7 +1,7 @@
-import { PrismaService } from "@/modules/prisma/prisma.service";
+import { PrismaService } from "@modules/prisma";
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { User } from "@prisma/client";
-import { UserService } from "../user/user.service";
+import { UserService } from "@resources/user";
 
 @Injectable()
 export class ChatService {
