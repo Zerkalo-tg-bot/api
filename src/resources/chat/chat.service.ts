@@ -1,6 +1,5 @@
 import { PrismaService } from "@modules/prisma";
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { UserService } from "@resources/user";
 
 @Injectable()
@@ -12,20 +11,7 @@ export class ChatService {
   ) {}
 
   async startChatSession(telegramUserId: number) {
-    let user: User | null = null;
-    try {
-      user = await this.userService.getUser(telegramUserId);
-    } catch (error) {
-      if (error instanceof InternalServerErrorException) {
-        throw new InternalServerErrorException(`Failed to fetch user`);
-      }
-    }
-
-    if (!user) {
-      user = await this.userService.createUser(telegramUserId);
-    }
-
-    return user;
+    return await this.userService.ensureUser(telegramUserId);
   }
 
   /**
@@ -34,10 +20,19 @@ export class ChatService {
    * @returns A promise that resolves when the chat state is reset
    */
   async resetChatState(telegramUserId: number) {
+    const user = await this.userService.getUserIfExists(telegramUserId);
+    if (!user) return;
+
     try {
-      await this.prisma.message.deleteMany({
-        where: { telegramUserId },
-      });
+      await this.prisma.$transaction([
+        this.prisma.message.deleteMany({
+          where: { telegramUserId },
+        }),
+        this.prisma.user.update({
+          where: { telegramId: telegramUserId },
+          data: { acceptedDisclaimer: false },
+        }),
+      ]);
     } catch (error) {
       this.logger.error(`Failed to reset chat state for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to reset chat state`);

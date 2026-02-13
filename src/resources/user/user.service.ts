@@ -1,5 +1,5 @@
 import { PrismaService } from "@modules/prisma";
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { UpdateDisclaimerDto } from "./dto/update-disclaimer.dto";
 import { User } from "@prisma/client";
 
@@ -39,6 +39,10 @@ export class UserService {
   }
 
   async createUser(telegramUserId: number) {
+    const user = await this.getUserIfExists(telegramUserId);
+    if (user) {
+      throw new ConflictException(`User with telegram ID ${telegramUserId} already exists`);
+    }
     try {
       return await this.prisma.user.create({
         data: { telegramId: telegramUserId },
@@ -46,6 +50,30 @@ export class UserService {
     } catch (error) {
       this.logger.error(`Failed to create user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to create user`);
+    }
+  }
+
+  async getUserIfExists(telegramUserId: number) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { telegramId: telegramUserId },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to fetch user ${telegramUserId}`, error);
+      throw new InternalServerErrorException(`Failed to fetch user`);
+    }
+  }
+
+  async ensureUser(telegramUserId: number) {
+    try {
+      return await this.prisma.user.upsert({
+        where: { telegramId: telegramUserId },
+        create: { telegramId: telegramUserId },
+        update: {},
+      });
+    } catch (error) {
+      this.logger.error(`Failed to ensure user ${telegramUserId}`, error);
+      throw new InternalServerErrorException(`Failed to ensure user`);
     }
   }
 }

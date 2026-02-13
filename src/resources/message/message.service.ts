@@ -5,6 +5,7 @@ import { EOpenAIMessageRole, OpenaiService, IOpenAIMessage } from "@modules/open
 import { PromptService } from "@modules/prompt";
 import { Message, MessageRole } from "@prisma/client";
 import { MessageResponseDto, SendMessageDto } from "./dto";
+import { UserService } from "../user";
 
 @Injectable()
 export class MessageService {
@@ -13,6 +14,7 @@ export class MessageService {
     private readonly openai: OpenaiService,
     private readonly prisma: PrismaService,
     private readonly promptService: PromptService,
+    private readonly userService: UserService,
   ) {}
 
   /**
@@ -23,6 +25,7 @@ export class MessageService {
    * @returns The assistant's response
    */
   async sendMessage(telegramUserId: number, message: SendMessageDto): Promise<MessageResponseDto> {
+    await this.userService.getUser(telegramUserId);
     let history: Message[] = [];
     try {
       history = await this.prisma.message.findMany({
@@ -92,6 +95,7 @@ export class MessageService {
    * @returns The greeting message
    */
   async getGreeting(telegramUserId: number): Promise<MessageResponseDto> {
+    await this.userService.getUser(telegramUserId);
     let prompt: string;
     try {
       prompt = await this.promptService.getBotBehaviorPrompt();
