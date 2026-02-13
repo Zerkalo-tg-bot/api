@@ -1,10 +1,11 @@
 import { PrismaService } from "@/modules/prisma/prisma.service";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { UserService } from "../user/user.service";
 
 @Injectable()
 export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
@@ -16,7 +17,6 @@ export class ChatService {
       user = await this.userService.getUser(telegramUserId);
     } catch (error) {
       if (error instanceof InternalServerErrorException) {
-        console.error(`Failed to fetch user ${telegramUserId}:`, error);
         throw new InternalServerErrorException(`Failed to fetch user`);
       }
     }
@@ -39,7 +39,7 @@ export class ChatService {
         where: { telegramUserId },
       });
     } catch (error) {
-      console.error(`Failed to reset chat state for user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to reset chat state for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to reset chat state`);
     }
   }

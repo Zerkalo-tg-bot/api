@@ -32,7 +32,6 @@ export class OpenaiService {
         messages,
       });
     } catch (error) {
-      console.error("Error calling OpenAI API:", error);
       throw new Error(`Failed to call OpenAI API:\n${error.message}`);
     }
 

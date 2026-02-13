@@ -1,10 +1,11 @@
 import { PrismaService } from "@/modules/prisma/prisma.service";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { UpdateDisclaimerDto } from "./dto/update-disclaimer.dto";
 import { User } from "@prisma/client";
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async updateUserDisclaimer(telegramUserId: number, updateDisclaimerDto: UpdateDisclaimerDto) {
@@ -15,7 +16,7 @@ export class UserService {
         data: { acceptedDisclaimer: updateDisclaimerDto.acceptedDisclaimer },
       });
     } catch (error) {
-      console.error(`Failed to update disclaimer for user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to update disclaimer for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to update disclaimer`);
     }
   }
@@ -27,7 +28,7 @@ export class UserService {
         where: { telegramId: telegramUserId },
       });
     } catch (error) {
-      console.error(`Failed to fetch user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to fetch user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to fetch user`);
     }
 
@@ -43,7 +44,7 @@ export class UserService {
         data: { telegramId: telegramUserId },
       });
     } catch (error) {
-      console.error(`Failed to create user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to create user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to create user`);
     }
   }

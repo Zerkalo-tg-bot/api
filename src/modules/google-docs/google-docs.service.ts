@@ -19,7 +19,9 @@ export class GoogleDocsService extends BaseApiService {
       const document = await this.get<string>(`${documentId}/export?format=txt`);
       return document;
     } catch (error) {
-      throw new Error(`Failed to fetch document content for document ID ${documentId}:\n${error.message}`);
+      throw new Error(`Failed to fetch document content for document ID ${documentId}`, {
+        cause: error.message,
+      });
     }
   }
 }

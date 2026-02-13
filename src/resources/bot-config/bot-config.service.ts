@@ -1,10 +1,11 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { GoogleDocsService } from "../../modules/google-docs/google-docs.service";
 import { ConfigService } from "@nestjs/config";
 import { BotDisclaimerDto } from "./dto/bot-disclaimer.dto";
 
 @Injectable()
 export class BotConfigService {
+  private readonly logger = new Logger(BotConfigService.name);
   #disclaimerDocumentId: string;
 
   constructor(
@@ -15,16 +16,14 @@ export class BotConfigService {
   }
 
   async getBotDisclaimer(): Promise<BotDisclaimerDto> {
-    console.log(`Fetching bot disclaimer from Google Docs with document ID: ${this.#disclaimerDocumentId}`);
     let disclaimer = "";
     try {
       disclaimer = await this.docsService.getPublicDocumentContent(this.#disclaimerDocumentId);
       if (!disclaimer) {
-        console.error("Disclaimer document is empty");
         throw new Error("Disclaimer document is empty");
       }
     } catch (error) {
-      console.error("Error fetching disclaimer document:", error);
+      this.logger.error("Error fetching disclaimer document:", error);
       throw new InternalServerErrorException(`Failed to fetch disclaimer document`);
     }
     return { content: disclaimer };

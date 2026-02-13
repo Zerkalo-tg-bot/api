@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { IMessage } from "./entities/message";
 import { mapMessageToOpenAIMessage } from "./model/mappers";
 import { PrismaService } from "@/modules/prisma/prisma.service";
@@ -10,6 +10,7 @@ import { MessageResponseDto, SendMessageDto } from "./dto";
 
 @Injectable()
 export class MessageService {
+  private readonly logger = new Logger(MessageService.name);
   constructor(
     private readonly openai: OpenaiService,
     private readonly prisma: PrismaService,
@@ -31,7 +32,7 @@ export class MessageService {
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       });
     } catch (error) {
-      console.error(`Failed to fetch message history for user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to fetch message history for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to fetch message history`);
     }
 
@@ -39,7 +40,7 @@ export class MessageService {
     try {
       botBehaviorPrompt = await this.promptService.getBotBehaviorPrompt();
     } catch (error) {
-      console.error("Failed to fetch bot behavior prompt", error);
+      this.logger.error(`Failed to fetch bot behavior prompt`, error);
       throw new InternalServerErrorException("Failed to fetch bot behavior prompt");
     }
 
@@ -52,7 +53,13 @@ export class MessageService {
     ];
     openAIMessages.push({ role: EOpenAIMessageRole.USER, content: message.content });
 
-    const response = await this.openai.sendMessage(openAIMessages);
+    let response: string;
+    try {
+      response = await this.openai.sendMessage(openAIMessages);
+    } catch (error) {
+      this.logger.error(`Failed to generate response from OpenAI for user ${telegramUserId}`, error);
+      throw new InternalServerErrorException("Failed to generate response from OpenAI");
+    }
 
     try {
       await this.prisma.$transaction([
@@ -72,7 +79,7 @@ export class MessageService {
         }),
       ]);
     } catch (error) {
-      console.error(`Failed to save messages for user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to save messages for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to save messages`);
     }
 
@@ -91,7 +98,7 @@ export class MessageService {
     try {
       prompt = await this.promptService.getBotBehaviorPrompt();
     } catch (error) {
-      console.error("Failed to fetch bot behavior prompt", error);
+      this.logger.error("Failed to fetch bot behavior prompt", error);
       throw new InternalServerErrorException("Failed to fetch bot behavior prompt");
     }
 
@@ -105,7 +112,7 @@ export class MessageService {
         },
       ]);
     } catch (error) {
-      console.error("Failed to generate greeting message", error);
+      this.logger.error("Failed to generate greeting message", error);
       throw new InternalServerErrorException("Failed to generate greeting message");
     }
 
@@ -118,7 +125,7 @@ export class MessageService {
         },
       });
     } catch (error) {
-      console.error(`Failed to save greeting message for user ${telegramUserId}:`, error);
+      this.logger.error(`Failed to save greeting message for user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to save greeting message`);
     }
 

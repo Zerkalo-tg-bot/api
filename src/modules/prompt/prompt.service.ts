@@ -22,7 +22,7 @@ export class PromptService {
       const prompt = await this.googleDocsService.getPublicDocumentContent(this.#botPromptDocumentId);
       return prompt;
     } catch (error) {
-      throw new Error(`Failed to fetch bot behavior prompt:\n${error.message}`);
+      throw new Error(`Failed to fetch bot behavior prompt`, { cause: error });
     }
   }
 }
