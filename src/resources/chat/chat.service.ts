@@ -13,11 +13,7 @@ export class ChatService {
   ) {}
 
   async startChatSession(telegramUserId: number): Promise<UserResponseDto> {
-    const user = await this.userService.ensureUser(telegramUserId);
-    return {
-      ...user,
-      language: mapPrismaLanguageToLanguage(user.language),
-    };
+    return await this.userService.ensureUser(telegramUserId);
   }
 
   /**

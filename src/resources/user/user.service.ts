@@ -48,7 +48,7 @@ export class UserService {
     };
   }
 
-  async updateUserLanguage(telegramUserId: number, updateLanguageDto: UpdateLanguageDto) {
+  async updateUserLanguage(telegramUserId: number, updateLanguageDto: UpdateLanguageDto): Promise<UserResponseDto> {
     await this.getUser(telegramUserId);
     try {
       const prismaLang = mapLanguageToPrismaLanguage(updateLanguageDto.language);
@@ -85,24 +85,35 @@ export class UserService {
     }
   }
 
-  async getUserIfExists(telegramUserId: number) {
+  async getUserIfExists(telegramUserId: number): Promise<UserResponseDto | null> {
     try {
-      return await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: { telegramId: telegramUserId },
       });
+      if (!user) {
+        return null;
+      }
+      return {
+        ...user,
+        language: mapPrismaLanguageToLanguage(user.language),
+      };
     } catch (error) {
       this.logger.error(`Failed to fetch user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to fetch user`);
     }
   }
 
-  async ensureUser(telegramUserId: number) {
+  async ensureUser(telegramUserId: number): Promise<UserResponseDto> {
     try {
-      return await this.prisma.user.upsert({
+      const user = await this.prisma.user.upsert({
         where: { telegramId: telegramUserId },
         create: { telegramId: telegramUserId },
         update: {},
       });
+      return {
+        ...user,
+        language: mapPrismaLanguageToLanguage(user.language),
+      };
     } catch (error) {
       this.logger.error(`Failed to ensure user ${telegramUserId}`, error);
       throw new InternalServerErrorException(`Failed to ensure user`);
