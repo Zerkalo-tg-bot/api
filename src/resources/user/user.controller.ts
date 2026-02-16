@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UpdateDisclaimerDto } from "./dto/update-disclaimer.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UpdateLanguageDto } from "./dto/update-language.dto";
-import { ELanguage } from "@/core";
 import { UserResponseDto } from "./dto/user-response.dto";
 
+@ApiTags("user")
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -37,12 +37,7 @@ export class UserController {
   @ApiOperation({ summary: "Update user language preference" })
   @ApiParam({ name: "telegramUserId", description: "Telegram User ID" })
   @ApiBody({
-    schema: {
-      type: "object",
-      properties: {
-        language: { type: "string", enum: Object.values(ELanguage) },
-      },
-    },
+    type: UpdateLanguageDto,
   })
   @ApiResponse({ status: 200, description: "User language updated successfully." })
   updateLanguage(

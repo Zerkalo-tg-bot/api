@@ -1,6 +1,8 @@
 import { PrismaService } from "@modules/prisma";
 import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { UserService } from "@resources/user";
+import { mapPrismaLanguageToLanguage } from "@/core";
+import type { UserResponseDto } from "@resources/user/dto/user-response.dto";
 
 @Injectable()
 export class ChatService {
@@ -10,8 +12,12 @@ export class ChatService {
     private readonly userService: UserService,
   ) {}
 
-  async startChatSession(telegramUserId: number) {
-    return await this.userService.ensureUser(telegramUserId);
+  async startChatSession(telegramUserId: number): Promise<UserResponseDto> {
+    const user = await this.userService.ensureUser(telegramUserId);
+    return {
+      ...user,
+      language: mapPrismaLanguageToLanguage(user.language),
+    };
   }
 
   /**
