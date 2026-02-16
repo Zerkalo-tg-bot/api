@@ -2,8 +2,6 @@
 
 NestJS + Prisma backend for the Zerkalo Telegram bot.
 
-For the full project guide, see the repository root README: `../README.md`.
-
 ## Environment variables
 
 Copy `api/.env.example` to `api/.env` and fill in the values.
