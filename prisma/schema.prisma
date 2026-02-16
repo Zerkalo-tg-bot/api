@@ -17,6 +17,7 @@ datasource db {
 model User {
   telegramId Int      @id  @map("telegram_id")
   acceptedDisclaimer Boolean @default(false) @map("accepted_disclaimer")
+  language Language @default(ENGLISH) @map("language")
   createdAt DateTime @default(now()) @map("created_at")
 
   messages Message[]
@@ -28,6 +29,12 @@ enum MessageRole {
   SYSTEM    @map("system")
   USER      @map("user")
   ASSISTANT @map("assistant")
+}
+
+enum Language {
+  ENGLISH @map("en")
+  RUSSIAN @map("ru")
+  POLISH  @map("pl")
 }
 
 model Message {

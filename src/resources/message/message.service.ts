@@ -95,10 +95,10 @@ export class MessageService {
    * @returns The greeting message
    */
   async getGreeting(telegramUserId: number): Promise<MessageResponseDto> {
-    await this.userService.getUser(telegramUserId);
+    const user = await this.userService.getUser(telegramUserId);
     let prompt: string;
     try {
-      prompt = await this.promptService.getBotBehaviorPrompt();
+      prompt = `${await this.promptService.getBotBehaviorPrompt()}\n\nThe user has the following language preference: ${user.language}.`;
     } catch (error) {
       this.logger.error("Failed to fetch bot behavior prompt", error);
       throw new InternalServerErrorException("Failed to fetch bot behavior prompt");
