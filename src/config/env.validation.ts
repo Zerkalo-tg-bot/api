@@ -5,7 +5,7 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 export function validateEnv(config: EnvRecord): EnvRecord {
-  const requiredKeys = ["DATABASE_URL", "OPENAI_API_KEY", "BOT_PROMPT_DOCUMENT_ID", "BOT_DISCLAIMER_DOCUMENT_ID"] as const;
+  const requiredKeys = ["DATABASE_URL", "OPENAI_API_KEY", "BOT_PROMPT_DOCUMENT_ID"] as const;
 
   const missing: string[] = [];
   for (const key of requiredKeys) {
