@@ -2,26 +2,35 @@
 
 NestJS + Prisma backend for the Zerkalo Telegram bot.
 
-See the repository root README for the full setup guide:
+For the full project guide, see the repository root README: `../README.md`.
 
-- `../README.md`
+## Environment variables
 
-## Development
+Copy `api/.env.example` to `api/.env` and fill in the values.
+
+Minimum required:
+
+- `DATABASE_URL`
+- `OPENAI_API_KEY`
+- `BOT_PROMPT_DOCUMENT_ID`
+
+## Local development
 
 From `api/`:
 
 ```bash
 npm install
+npx prisma migrate dev
 npm run start:dev
 ```
 
-Swagger (when running):
+Swagger (when API is running):
 
 - http://localhost:3000/docs
 
-## Prisma
+## Prisma (common commands)
 
-Common commands (from `api/`):
+From `api/`:
 
 ```bash
 npx prisma generate
