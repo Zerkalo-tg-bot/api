@@ -1,7 +1,15 @@
 import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UpdateDisclaimerDto } from "./dto/update-disclaimer.dto";
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { UpdateLanguageDto } from "./dto/update-language.dto";
 import { UserResponseDto } from "./dto/user-response.dto";
 
@@ -13,7 +21,9 @@ export class UserController {
   @Get(":telegramUserId")
   @ApiOperation({ summary: "Get user information" })
   @ApiParam({ name: "telegramUserId", description: "Telegram User ID" })
-  @ApiResponse({ status: 200, description: "User information retrieved successfully." })
+  @ApiResponse({ status: 200, description: "User information retrieved successfully.", type: UserResponseDto })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiInternalServerErrorResponse({ description: "Internal server error" })
   getUser(@Param("telegramUserId") telegramUserId: string): Promise<UserResponseDto> {
     return this.userService.getUser(+telegramUserId);
   }
@@ -25,7 +35,9 @@ export class UserController {
     type: UpdateDisclaimerDto,
     description: "Disclaimer update payload",
   })
-  @ApiResponse({ status: 200, description: "User disclaimer updated successfully." })
+  @ApiResponse({ status: 200, description: "User disclaimer updated successfully.", type: UserResponseDto })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiInternalServerErrorResponse({ description: "Internal server error" })
   updateDisclaimer(
     @Param("telegramUserId") telegramUserId: string,
     @Body() updateDisclaimerDto: UpdateDisclaimerDto,
@@ -39,7 +51,9 @@ export class UserController {
   @ApiBody({
     type: UpdateLanguageDto,
   })
-  @ApiResponse({ status: 200, description: "User language updated successfully." })
+  @ApiResponse({ status: 200, description: "User language updated successfully.", type: UserResponseDto })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiInternalServerErrorResponse({ description: "Internal server error" })
   updateLanguage(
     @Param("telegramUserId") telegramUserId: string,
     @Body() updateLanguageDto: UpdateLanguageDto,
