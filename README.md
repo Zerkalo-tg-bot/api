@@ -22,6 +22,18 @@ npx prisma migrate dev
 npm run start:dev
 ```
 
+## Production migrations
+
+Do not use `prisma migrate dev` in production.
+
+To apply existing migrations (from `api/prisma/migrations`) to the production database, run:
+
+```bash
+npx prisma migrate deploy
+```
+
+If you use Docker Compose, run it inside the API container (see the root README).
+
 Swagger (when API is running):
 
 - http://localhost:3000/docs
